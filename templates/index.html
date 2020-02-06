@@ -1,0 +1,102 @@
+{% extends 'base0.html' %}
+{% block title %}
+    天天生鲜-首页
+{% endblock title %}
+
+{% block q0 %}
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/slide.js"></script>
+{% endblock q0 %}
+
+
+
+{% block q3 %}
+    <div class="navbar_con">
+        <div class="navbar">
+            <h1 class="fl">全部商品分类</h1>
+            <ul class="navlist fl">
+                <li><a href="">首页</a></li>
+                <li class="interval">|</li>
+                <li><a href="">手机生鲜</a></li>
+                <li class="interval">|</li>
+                <li><a href="">抽奖</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="center_con clearfix">
+        <ul class="subnav fl">
+            {% for foo_c in banner_c %}
+                <li><a href="#mode{{ forloop.counter }}" class="{{ foo_c.logo }}">{{ foo_c.name }}</a></li>
+            {% endfor %}
+
+            {#            <li><a href="#model01" class="fruit">新鲜水果</a></li>#}
+            {#            <li><a href="#model02" class="seafood">海鲜水产</a></li>#}
+            {#            <li><a href="#model03" class="meet">猪牛羊肉</a></li>#}
+            {#            <li><a href="#model04" class="egg">禽类蛋品</a></li>#}
+            {#            <li><a href="#model05" class="vegetables">新鲜蔬菜</a></li>#}
+            {#            <li><a href="#model06" class="ice">速冻食品</a></li>#}
+        </ul>
+        <div class="slide fl">
+            <ul class="slide_pics">
+                {#                <li><img src="/static/media/banner/slide.jpg" alt="幻灯片"></li>#}
+                {#                <li><img src="/static/media/banner/slide02.jpg" alt="幻灯片"></li>#}
+                {#                <li><img src="/static/media/banner/slide03.jpg" alt="幻灯片"></li>#}
+                {#                <li><img src="/static/media/banner/slide04.jpg" alt="幻灯片"></li>#}
+
+                {% for foo_a in banner_a %}
+                    <li><img src="/static/{{ foo_a.image }}" alt="幻灯片"></li>
+                {% endfor %}
+
+            </ul>
+            <div class="prev"></div>
+            <div class="next"></div>
+            <ul class="points"></ul>
+        </div>
+
+        <div class="adv fl">
+            {% for foo_b in banner_b %}
+                <a href="{{ foo_b.url }}"><img src="/static/{{ foo_b.image }}"></a>
+            {% endfor %}
+
+            {#            <a href="#"><img src="/static/media/banner/adv01.jpg"></a>#}
+            {#            <a href="#"><img src="/static/media/banner/adv02.jpg"></a>#}
+        </div>
+    </div>
+
+    {% for foo in banner_c %}
+        <div class="list_model">
+            <div class="list_title clearfix">
+                <h3 class="fl" id="mode{{ forloop.counter }}">{{ foo.name }}</h3>
+                <div class="subtitle fl">
+                    <span>|</span>
+                    {% for foo_1 in foo.indextypegoodsbanner_set.all %}
+                        {% if foo_1.display_type == 0 %}
+                            <a href="/goods/detail/{{ foo_1.sku.id }}">{{ foo_1.sku.name }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <a href="/goods/list/{{ foo.id }}/1" class="goods_more fr" id="fruit_more">查看更多 ></a>
+            </div>
+
+            <div class="goods_con clearfix">
+                <div class="goods_banner fl"><img src="/static/{{ foo.image }}"></div>
+                <ul class="goods_list fl">
+                    {% for foo_2 in foo.indextypegoodsbanner_set.all %}
+                        {% if foo_2.display_type == 1 %}
+                            <li>
+                                <h4><a href="/goods/detail/{{ foo_2.sku.id }}">{{ foo_2.sku.name }}</a></h4>
+                                <a href="/goods/detail/{{ foo_2.sku.id }}"><img src="/static/{{ foo_2.sku.image }}"></a>
+                                <div class="prize">¥ {{ foo_2.sku.price  }}</div>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock q3 %}
+

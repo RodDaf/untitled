@@ -1,0 +1,66 @@
+{% extends 'user_center_info.html' %}
+
+{% block q3 %}
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+            <h3>用户中心</h3>
+            <ul>
+                <li><a href="/user/user_center_info/">· 个人信息</a></li>
+                <li><a href="/user/user_center_order/">· 全部订单</a></li>
+                <li><a href="/user/user_center_site/" class="active">· 收货地址</a></li>
+            </ul>
+        </div>
+        <div class="right_content clearfix">
+            <h3 class="common_title2">收货地址</h3>
+            <div class="site_con">
+                <dl>
+                    <dt>当前地址：</dt>
+                    <dd>{{ q2 }} {{ q1 }} {{ q3 }}</dd>
+                </dl>
+            </div>
+
+            <h3 class="common_title2">修改地址</h3>
+            <div class="site_con">
+                <form action="/user/commit_1/" method="post">
+                    {% csrf_token %}
+                    <select class="form-control" name="sse">
+                        {% for tt in request.user.address_set.all %}
+                        <option value="{{ tt.id }}">{{ tt.addr }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">修改</button>
+                </form>
+            </div>
+
+            <h3 class="common_title2">编辑地址</h3>
+            <div class="site_con">
+                <form method="post" action="/user/user_center_site/">
+                    {% csrf_token %}
+                    <div class="form_group">
+                        <label>收件人：</label>
+                        <input type="text" name="rename">
+                        <div style="color: red">{{ error1 }}</div>
+                    </div>
+                    <div class="form_group form_group2">
+                        <label>详细地址：</label>
+                        <textarea class="site_area" name="readdr"></textarea>
+                    </div>
+                    <div style="color: red">{{ error1 }}</div>
+                    <div class="form_group">
+                        <label>邮编：</label>
+                        <input type="text" name="zip_code">
+
+                    </div>
+                    <div class="form_group">
+                        <label>手机：</label>
+                        <input type="text" name="phone">
+                        <div style="color: red">{{ error1 }}</div>
+                        <div style="color: red">{{ error2 }}</div>
+                    </div>
+                    <input type="submit" name="" value="提交" class="info_submit">
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock q3 %}

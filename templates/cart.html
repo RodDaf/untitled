@@ -1,0 +1,231 @@
+{% extends 'user_center_info.html' %}
+{% block title %}
+    天天生鲜-购物车
+{% endblock title %}
+
+
+{% load filter %}
+{% block q2 %}
+    <div class="search_bar clearfix">
+        <a href="/goods/indexs/" class="logo fl"><img src="/static/images/logo.png"></a>
+        {% block qq %}
+            <div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;购物车</div>
+        {% endblock qq %}
+        <div class="search_con fr">
+            <input type="text" class="input_text fl" name="" placeholder="搜索商品">
+            <input type="button" class="input_btn fr" name="" value="搜索">
+        </div>
+    </div>
+{% endblock q2 %}
+
+{% block q3 %}
+
+    {% csrf_token %}
+
+    <div class="total_count">全部商品<em>{{ lenght }}</em>种</div>
+    <ul class="cart_list_th clearfix">
+        <li class="col01">商品名称</li>
+        <li class="col02">商品单位</li>
+        <li class="col03">商品价格</li>
+        <li class="col04">数量</li>
+        <li class="col05">小计</li>
+        <li class="col06">操作</li>
+    </ul>
+
+    <form action="/orders/place_order/" method="post">
+    {% csrf_token %}
+
+        {% for car in car_list %}
+            <ul class="cart_list_td clearfix">
+                <li class="col01"><input type="checkbox" name="sku_checkbox" value="{{ car.id }}"></li>
+                <li class="col02"><img src="/static/{{ car.image }}"></li>
+                <li class="col03">{{ car.name }}<br><em>{{ car.price }}元/{{ car.unite }}</em></li>
+                <li class="col04">{{ car.unite }}</li>
+                <li class="col05">{{ car.price }}</li>
+                <li class="col06">
+                    <div class="num_add" sku_id="{{ car.id }}">
+                        <a href="javascript:;" class="add fl">+</a>
+                        <input type="text" class="num_show fl" value="{{ car.count }}" stock="{{ car.stock }}">
+                        <a href="javascript:;" class="minus fl">-</a>
+                    </div>
+                </li>
+                <li class="col07">{{ car.price | multiple:car.count }}元</li>
+                <li class="col08"><a href="/cart/goods_car_del/{{ car.id }}/">删除</a></li>
+                <li class="col09"><a href="" class="ajax_del" car_id="{{ car.id }}">ajax删除</a></li>
+            </ul>
+        {% endfor %}
+
+        <ul class="settlements">
+            <li class="col01"><input type="checkbox" name=""></li>
+            <li class="col02">全选</li>
+            <li class="col03">合计：<span>¥</span><em>0.00</em><br>共计<b>0</b>件商品</li>
+{#            <li class="col04"><a href="">去结算</a></li>#}
+            <li class="col04"><button type="submit" class="btn btn-danger" style="width: 167.483px; height: 77px;margin-bottom: 3.6px">结算</button></li>
+        </ul>
+
+    </form>
+
+
+{% endblock q3 %}
+
+
+{% block q5 %}
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    <script>
+        $(function () {
+                function update_total() {
+                    var total_price2 = 0;
+                    var total_sum2 = 0;
+                    $(".cart_list_td").find(":checked").parent().parent().each(function () {
+                        var cur_price2 = $(this).find(".col07").text().slice(0, -1);
+                        var cur_sum2 = $(this).find(".num_show").val();
+                        total_price2 += parseFloat(cur_price2);
+                        total_sum2 += parseInt(cur_sum2);
+                    });
+                    $(".settlements").find("em").text(total_price2.toFixed(2));
+                    $(".settlements").find("b").text(total_sum2);
+
+
+                };
+
+                //定义函数进行调用，小计
+                function update_small_total(a_obj) {
+                    var price = a_obj.parent().parent().prev().text();
+                    var count = a_obj.parent().find("input").val();
+                    var total_price = parseFloat(price) * parseInt(count);
+                    a_obj.parent().parent().next().text(total_price.toFixed(2) + "元")
+                };
+
+                //定义函数进行加减号，用户输入，在redis中的购物车中更改商品数量数据的函数
+                function update_cart_record(sku_id, count, this_obj) {
+                    var csrf = $("input[name='csrfmiddlewaretoken']").val();
+                    $.ajax({
+                        url: '/cart/cart_update/',
+                        type: "post",
+                        data: {"csrfmiddlewaretoken": csrf, "sku_id": sku_id, "count": count},
+                        success: function (data) {
+                            if (data.code == '1') {
+                                alert('库存不足')  //如果更改成功alert一个弹框
+                            }
+                        }
+                    });
+                    //checkbox框，连接总计金额，选中有变化，不选中不进行变化
+                    var is_checked = this_obj.parents("ul").find(":checkbox").prop("checked");
+                    if (is_checked) {
+                        update_total()
+                    }
+                }
+
+                $(".settlements").find(":checkbox").change(function () {
+                    var is_check = $(this).prop("checked");
+                    if (is_check) {
+                        {#    将上边所有的checkbox变为 checked#}
+                        $(".cart_list_td").find(":checkbox").prop("checked", true)
+                    } else {
+                        {#    将上边所有的checkbox变为 !checked#}
+                        $(".cart_list_td").find(":checkbox").prop("checked", false)
+                    }
+                    {#    更新最下方的总价格#}
+                    update_total()
+                });
+                $(".cart_list_td").find(":checkbox").change(function () {
+
+                    var all_len = $(".cart_list_td").length;
+                    var cur_checked_len = $(".cart_list_td").find(":checked").length;
+                    if (cur_checked_len < all_len) {
+                        $(".settlements").find(":checkbox").prop("checked", false)
+                    } else {
+                        $(".settlements").find(":checkbox").prop("checked", true)
+                    }
+                    {#    更新总价格#}
+                    update_total()
+                });
+
+
+                $('.ajax_del').click(function () {
+                    var csrf = $("input[name='csrfmiddlewaretoken']").val();
+                    var sku_id = $(this).attr("car_id");
+                    var obj = $(this);
+                    $.ajax({
+                        url: "/cart/cart_delete_ajax/",
+                        type: "post",
+                        data: {"car_id": sku_id, "csrfmiddlewaretoken": csrf},
+                        success: function (data) {
+
+                            $(".ajax_del").parent().find("a[car_id=" + sku_id + "]").parent().parent().remove();
+
+                            update_total();
+                        }
+                    })
+                });   //删除redis中商品
+
+
+                $(".add").click(function () {
+                    var stock_nums = parseInt($(this).next().attr("stock"));
+                    var count = $(this).next().val();
+                    count = parseInt(count) + 1;
+                    if (count > stock_nums) {
+                        count = stock_nums;
+                    }
+                    $(this).next().val(count);
+                    /*  更新当前商品的小计  */
+                    update_small_total($(this));
+
+                    /*  加号更新redis购物车中商品数量 */
+                    var sku_id = $(this).parent().attr("sku_id");
+                    var count = $(this).next().val();
+                    update_cart_record(sku_id, count, $(this));
+
+
+                });       //car_list 数量加法
+
+                $(".minus").click(function () {
+                    var count = $(this).prev().val();
+                    count = parseInt(count) - 1;
+                    if (count < 1) {
+                        count = 0;
+                    }
+                    $(this).prev().val(count);
+                    /*  更新当前商品的小计  */
+                    update_small_total($(this));
+
+                    /*  减号更新redis购物车中商品数量 */
+                    var sku_id = $(this).parent().attr("sku_id");
+                    var count = $(this).prev().val();
+                    update_cart_record(sku_id, count, $(this));
+
+
+                });    //car_list 数量减法
+
+
+                $(".num_show").blur(function () {
+                    var user_input = $(this).val();
+
+                    //非数字判断            //非空格组成判断                    //不能小于1判断
+                    if (isNaN(user_input) || user_input.trim().length == 0 || parseInt(user_input) < 1) {
+                        $(this).val(0);
+                    }
+                    var stock_nums = parseInt($(this).attr("stock"));
+                    var input_nums = parseInt($(this).val());
+                    if (input_nums > stock_nums) {
+                        $(this).val(stock_nums);
+                    }
+                    update_small_total($(this));
+                    /*  加号减号，更新redis中购物车的记录 */
+                    var sku_id = $(this).parent().attr("sku_id");
+                    var count = $(this).val();
+                    update_cart_record(sku_id, count, $(this));
+
+                })   //car_list 用户输入数量
+            }
+        )
+
+    </script>
+
+
+
+{% endblock q5 %}
+
+
+
+

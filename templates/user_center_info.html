@@ -1,0 +1,127 @@
+{% extends 'base0.html' %}
+
+{% block title %}
+    天天生鲜-用户中心
+{% endblock title %}
+
+
+
+{% block q0 %}
+
+    <script src="/static/bootstrap-3.3.7-dist/js/jquery-2.1.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+{% endblock q0 %}
+
+
+{% block q2 %}
+    <div class="search_bar clearfix">
+        <a href="/goods/indexs/" class="logo fl"><img src="/static/images/logo.png"></a>
+        {% block qq %}
+            <div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+        {% endblock qq %}
+        <div class="search_con fr">
+            <input type="text" class="input_text fl" name="" placeholder="搜索商品">
+            <input type="button" class="input_btn fr" name="" value="搜索">
+        </div>
+    </div>
+{% endblock q2 %}
+
+{% block q3 %}
+
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+            <h3>用户中心</h3>
+            <ul>
+                <li><a href="/user/user_center_info/" class="active">· 个人信息</a></li>
+                <li><a href="/user/user_center_order/">· 全部订单</a></li>
+                <li><a href="/user/user_center_site/">· 收货地址</a></li>
+            </ul>
+        </div>
+
+        <div class="right_content clearfix">
+            <form action="/user/submit_info/" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="info_con clearfix">
+                    <h3 class="common_title2">基本信息</h3>
+                    <ul class="user_info_list">
+                        <li><span>头像：</span><img src="/static/{{ request.user.head }}" width="80" height="80" style="vertical-align: middle"></li>
+                        <li><span>用户名：</span>{{ request.user.username }}</li>
+                        <li><span>姓名：</span>{{ request.user.name }}</li>
+                        {% if request.user.sex == 1 %}
+                            <li><span>性别：</span>女</li>
+                        {%elif request.user.sex == 2  %}
+                            <li><span>性别：</span>男</li>
+                        {% endif %}
+                        <li><span>联系方式：</span>15611516621</li>
+                        <li><span>常居地址：</span>山东省临沂市</li>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                            修改资料
+                        </button>
+                            {% csrf_token %}
+                            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span></button>
+                                        </div>
+                                        <div class="modal-body">
+
+                                            <div class="form-group">
+                                                <label for="exampleInputEmail1">姓名</label>
+                                                <input type="text" class="form-control" id="user_name" name="user_name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="exampleInputPassword1">性别</label>
+                                                <input type="text" class="form-control" id="sex" name="sex">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="exampleInputFile">头像</label>
+                                                <input type="file" id="header" name="user_head">
+                                                <p class="help-block">请选择上传的头像</p>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                            <button type="submit" class="btn btn-primary" value="">提交</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                    </ul>
+                </div>
+            </form>
+
+
+            <h3 class="common_title2">最近浏览</h3>
+            <div class="has_view_list">
+                <ul class="goods_type_list clearfix">
+                    {% for history_id in history %}
+                        <li>
+                            <a href="/goods/detail/{{ history_id.id }}"><img src="/static/{{ history_id.image }}"></a>
+                            <h4><a href="detail.html">{{ history_id.name }}</a></h4>
+                            <div class="operate">
+                                <span class="prize">￥{{ history_id.price }}</span>
+                                <span class="unit">{{ history_id.price }}/{{ history_id.unite }}</span>
+                                <a href="#" class="add_goods" title="加入购物车"></a>
+                            </div>
+                        </li>
+                    {% endfor %}
+
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock q3 %}
+
+
+
+{% block q5 %}
+
+{% endblock q5 %}

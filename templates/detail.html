@@ -1,0 +1,224 @@
+{% extends 'base0.html' %}
+
+{% block title %}
+    天天生鲜-商品详情
+{% endblock title %}
+
+{% block q3 %}
+    <div class="navbar_con">
+        <div class="navbar clearfix">
+            <div class="subnav_con fl">
+                <h1>全部商品分类</h1>
+                <span></span>
+                <ul class="subnav">
+                    <li><a href="#" class="fruit">新鲜水果</a></li>
+                    <li><a href="#" class="seafood">海鲜水产</a></li>
+                    <li><a href="#" class="meet">猪牛羊肉</a></li>
+                    <li><a href="#" class="egg">禽类蛋品</a></li>
+                    <li><a href="#" class="vegetables">新鲜蔬菜</a></li>
+                    <li><a href="#" class="ice">速冻食品</a></li>
+                    {#                    {% for foo_c in banner_c %}#}
+                    {#                        <li><a href="#mode{{ forloop.counter }}" class="{{ foo_c.logo }}">{{ foo_c.name }}</a></li>#}
+                    {#                    {% endfor %}#}
+                </ul>
+            </div>
+            <ul class="navlist fl">
+                <li><a href="">首页</a></li>
+                <li class="interval">|</li>
+                <li><a href="">手机生鲜</a></li>
+                <li class="interval">|</li>
+                <li><a href="">抽奖</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% csrf_token %}
+
+    <div class="breadcrumb">
+        <a href="/goods/indexs/">全部分类</a>
+        <span>></span>
+        <a href="#">新鲜水果</a>
+        <span>></span>
+        <a href="#">商品详情</a>
+    </div>
+
+    <div class="goods_detail_con clearfix">
+        <div class="goods_detail_pic fl"><img src="/static/{{ image }}"></div>
+        <div class="goods_detail_list fr">
+            <h3>{{ name }}</h3>
+            <p>{{ desc }}</p> {#  简介 #}
+            <div class="prize_bar">
+                <span class="show_pirze" name="price">¥<em>{{ price }}</em></span> {#  价钱 #}
+                <span class="show_unit">单  位：{{ unite }}</span>
+                <span class="show_unit">库  存：{{ stock }}</span>
+            </div>
+
+            <form action="/orders/place_order2/{{ id }}/" method="post">
+                {% csrf_token %}
+                <div class="goods_num clearfix">
+                    <div class="num_name fl" >数 量：</div>
+                    <div class="num_add fl">
+                        <input type="text" class="num_show fl" value="0" name="count">
+                        <a href="javascript:;" class="add fr">+</a>
+                        <a href="javascript:;" class="minus fr">-</a>
+                    </div>
+                </div>
+                <div class="total">总价：<em>{{ price }}元</em></div>
+
+                <div class="operate_btn">
+{#                    {% if stock != 0 %}#}
+                        {#                    <input class="buy_btn" type="submit" value="立即购买">#}
+                        <li class="buy_btn"> <button type="submit" class="btn btn-default"  style="width: 179px; height: 38px;background: #ffeded; color: #c40000">立即购买</button> </li>
+                        <a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+                        {#                    <li class="buy_btn"><button type="submit">立即购买</button></li>#}
+{#                    {% else %}#}
+{#                        <li class="buy_btn"><button type="submit" class="btn btn-default" disabled="disabled" style="width: 179px; height: 38px;background: #ffeded; color: #c40000">立即购买</button></li>#}
+                        {#<a href="javascript:;" class="add_cart" id="add_cart" disabled="disabled">加入购物车</a>#}
+{#                        <li class="add_cart"><button type="submit" class="btn btn-default" disabled="disabled" style="width: 179px; height: 38px;background: #c40000; color: #fff">加入购物车</button></li>#}
+{#                    {% endif %}#}
+
+
+                </div>
+            </form>
+
+        </div>
+
+
+    </div>
+
+    <div class="main_wrap clearfix">
+
+
+        <div class="l_wrap fl clearfix">
+            <div class="new_goods">
+                <h3>新品推荐</h3>
+                <ul>
+                    {% for new_foo in new_goods %}
+                        <li>
+                            <a href="/goods/detail/{{ new_foo.id }}"><img src="/static/{{ new_foo.image }}"></a>
+                            <h4><a href="#">{{ new_foo.name }}</a></h4>
+                            <div class="prize">￥{{ new_foo.price }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+
+        <div class="r_wrap fr clearfix">
+            <ul class="detail_tab clearfix">
+                <li class="active">商品介绍</li>
+                <li>评论</li>
+            </ul>
+
+            <div class="tab_content">
+                <dl>
+                    <dt>商品详情：</dt>
+                    <dd>{{ detail|safe }}</dd>
+                    {# |safe  消除富文本自带的  p标签<p></p> #}
+                </dl>
+            </div>
+
+        </div>
+    </div>
+{% endblock q3 %}
+
+
+{% block q4 %}
+    <div class="add_jump"></div>
+{% endblock q4 %}
+
+
+
+{% block q5 %}
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript">
+        function update_total_price() {
+            var price = parseFloat({{ price }});
+            var nums = parseFloat($(".num_show").val());
+            var total_price = (price * nums).toFixed(2);
+            $(".total").children().text(total_price + "元")
+        }
+
+
+        var $add_x = $('#add_cart').offset().top;
+        var $add_y = $('#add_cart').offset().left;
+
+        var $to_x = $('#show_count').offset().top;
+        var $to_y = $('#show_count').offset().left;
+
+
+        $('#add_cart').click(function () {
+
+
+            var sku_id = {{ id }};
+            var count = $(".num_show").val();
+
+            {#parseInt()#}
+                var csrf = $("input[name='csrfmiddlewaretoken']").val();
+            $.ajax({
+                url: "/cart/goods_car_add/",
+                data: {"id": sku_id, "count": count, "csrfmiddlewaretoken": csrf},
+                type: "post",
+                success: function (data) {
+                    if (data.code == 1) {
+                        $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'});
+                        $(".add_jump").stop().animate({
+                                'left': $to_y + 7,
+                                'top': $to_x + 7
+                            },
+                            "fast", function () {
+                                $(".add_jump").fadeOut('fast', function () {
+                                    $('#show_count').html(data.cart_length);
+                                    {#$('#show_count').html({{ request.session.cart_length }});#}
+                                });
+
+                            });
+                    } else {
+                        alert("请您先登录！")
+                    }
+                }
+            });
+
+
+        });
+        {#<a href="javascript:;" class="add fr">+</a>#}
+        {#          <a href="javascript:;" class="minus fr">-</a>#}
+        $(".add").click(function () {
+            var stock_nums = parseInt({{ stock }});
+            var count = $(".num_show").val();
+            count = parseInt(count) + 1;
+            if (count > stock_nums) {
+                count = stock_nums;
+            }
+            $(".num_show").val(count);
+            {#更新价格#}
+            update_total_price();
+
+        });
+        $(".minus").click(function () {
+            var count = $(".num_show").val();
+            count = parseInt(count) - 1;
+            if (count < 1) {
+                count = 0;
+            }
+            $(".num_show").val(count);
+            {#更新价格#}
+            update_total_price();
+        });
+        $(".num_show").blur(function () {
+            var user_input = $(".num_show").val();
+            if (isNaN(user_input) || user_input.trim().length == 0 || parseInt(user_input) < 1) {
+                $(".num_show").val(0);
+            }
+            {#更新价格#}
+            var stock_nums = parseInt({{ stock }});
+            var input_nums = parseInt($(".num_show").val());
+            if (input_nums > stock_nums) {
+                $(".num_show").val(stock_nums);
+            }
+            update_total_price();
+        })
+    </script>
+{% endblock q5 %}
+
